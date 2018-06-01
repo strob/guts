@@ -81,15 +81,18 @@ def bschange(bs, change):
 
 
 class StageFactory(WebSocketServerFactory):
-    def __init__(self, scriptpath='stage.js', csspath='stage.css'):
+    def __init__(self, scriptpath='stage.js', csspath='stage.css', wwwdir='.'):
+
+        self.wwwdir = wwwdir
+        
         self.scriptpath = scriptpath
         self.csspath = csspath
 
         # Set up monitors
         self.obs = Observer()
         e2cb = root.Ev2CB({
-            self.scriptpath: self._onscriptchange,
-            self.csspath: self._oncsschange})
+            os.path.join(self.wwwdir, self.scriptpath): self._onscriptchange,
+            os.path.join(self.wwwdir, self.csspath): self._oncsschange})
 
         # XXX: stage and css must be in same directory!
         self.obs.schedule(e2cb, os.path.dirname(os.path.abspath(scriptpath)))
@@ -136,7 +139,7 @@ class StageProtocol(WebSocketServerProtocol):
         # XXX: should clients be able to stage changes?
         pass
 
-def Codestage(scriptpath='stage.js', csspath='stage.css'):
-    factory = StageFactory(scriptpath=scriptpath, csspath=csspath)
+def Codestage(scriptpath='stage.js', csspath='stage.css', wwwdir='.'):
+    factory = StageFactory(scriptpath=scriptpath, csspath=csspath, wwwdir=wwwdir)
     factory.protocol = StageProtocol
     return WebSocketResource(factory)
