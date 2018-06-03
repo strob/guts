@@ -25,7 +25,7 @@ class Ev2CB(FileSystemEventHandler):
     def get_cb(self, ev):
         print('get_cb', ev.src_path, ev)
         for path in self.pathmap.keys():
-            if os.path.abspath(ev.src_path) == os.path.abspath(path):
+            if os.path.realpath(ev.src_path) == os.path.realpath(path):
                 return self.pathmap[path]
         return None
 
