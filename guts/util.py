@@ -105,7 +105,7 @@ class StageFactory(WebSocketServerFactory):
             os.path.join(self.wwwdir, self.csspath): self._oncsschange})
 
         # XXX: stage and css must be in same directory!
-        self.obs.schedule(e2cb, os.path.dirname(os.path.abspath(scriptpath)))
+        self.obs.schedule(e2cb, os.path.realpath(wwwdir))
         self.obs.start()
 
         self.clients = {}
