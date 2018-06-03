@@ -74,11 +74,21 @@ def attach(filepath, attachdir="local/_attachments"):
 
     return attachments.move_to_database(filepath, sha1.hexdigest(), attachdir)
 
-def bschange(bs, change):
-    def do_change(changedoc):
-        bs._factory.onchange(None, changedoc)
-    reactor.callFromThread(do_change, change)
+class BSPeer:
+    def __init__(self, name):
+        self.peername = name
 
+def bschange(bs, change, sync=False, peername=None):
+    peer = None
+    if peername is not None:
+        peer = BSPeer(peername)
+        
+    def do_change(changedoc):
+        bs._factory.onchange(peer, changedoc)
+    if sync:
+        do_change(change)
+    else:
+        reactor.callFromThread(do_change, change)
 
 class StageFactory(WebSocketServerFactory):
     def __init__(self, scriptpath='stage.js', csspath='stage.css', wwwdir='.'):
