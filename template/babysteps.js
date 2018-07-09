@@ -154,7 +154,7 @@ var BS = BS || {};
         }
         else {
             // Caller invariant: `val` must be an object (not a primitive)
-            var doc = val;
+            var doc = Object.assign({}, olddoc, val);
         }
         
         // Force doc to maintain ID
