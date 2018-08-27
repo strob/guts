@@ -7,3 +7,4 @@ from .util import (File,
                    Babysteps, Attachments,
                    Codestage,
                    attach, bschange)
+from .family import BSFamily
