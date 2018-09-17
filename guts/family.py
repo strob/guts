@@ -147,8 +147,26 @@ class BSFamily:
         return docs
         
     def get_info(self, id):
-        # NOT IMPLEMENTED
-        return self.get_meta(id)
+        meta = dict(self.get_meta(id))
+        log = self.dbs[id]._factory.steps.log
+
+        if len(log) == 0:
+            ctime = mtime = time.time()
+        else:
+            ctime = log[0]['date']
+            mtime = log[-1]['date']
+
+        for key in meta.keys():
+            if key[0] == "_":
+                del meta[key]
+
+        meta.update({
+            "id": id,
+            "created_time": ctime,
+            "modified_time": mtime,
+        })
+
+        return meta                
 
     def get_infos(self, **kw):
         _all = self.dbs.keys()
