@@ -150,5 +150,6 @@ class BSFamily:
         # NOT IMPLEMENTED
         return self.get_meta(id)
 
-    def get_infos(self, _all, **kw):
+    def get_infos(self, **kw):
+        _all = self.dbs.keys()
         return sorted([self.get_info(X) for X in _all if X in self.dbs], key=lambda x: x['created_time'], reverse=True)
