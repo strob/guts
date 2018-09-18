@@ -63,7 +63,7 @@ def Attachments(attachdir="local/_attachments"):
     a_factory.protocol = attachments.AttachProtocol
     return WebSocketResource(a_factory)
 
-def attach(filepath, attachdir="local/_attachments"):
+def attach(filepath, attachdir="local/_attachments", copy=False):
     # XXX: This should be in the attachments.py file probably
     sha1 = hashlib.sha1()
     with open(filepath) as fh:
@@ -72,7 +72,7 @@ def attach(filepath, attachdir="local/_attachments"):
             sha1.update(buf)
             buf = fh.read(2**15)
 
-    return attachments.move_to_database(filepath, sha1.hexdigest(), attachdir)
+    return attachments.move_to_database(filepath, sha1.hexdigest(), attachdir, copy=copy)
 
 class BSPeer:
     def __init__(self, name):

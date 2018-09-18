@@ -107,7 +107,7 @@ class AttachProtocol(WebSocketServerProtocol):
                 self.sendMessage(json.dumps({"type": "got-chunk", "id": self.cur_id, "size": self.cur_size}))
 
 
-def move_to_database(filename, hashstr, attachdir, ext=None):
+def move_to_database(filename, hashstr, attachdir, ext=None, copy=False):
     if ext is None:
         _r, ext = os.path.splitext(filename)
 
@@ -121,6 +121,9 @@ def move_to_database(filename, hashstr, attachdir, ext=None):
     except OSError:
         pass
 
-    shutil.move(filename, outpath)
+    if copy:
+        shutil.copy(filename, outpath)
+    else:
+        shutil.move(filename, outpath)
     
     return hashpath
