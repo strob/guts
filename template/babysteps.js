@@ -14,7 +14,8 @@ var BS = BS || {};
         return window.location.host + '/' +  pname;
     }
 
-    $.DB = function(log, dbpath) {
+    $.DB = function(log, dbpath, abort) {
+	if(abort) return;
 
         this._log = log || [];
         this._docs = {};
