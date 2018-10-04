@@ -32,14 +32,14 @@ var FARM = FARM || {};
     }
 
     
-    $.track = function() {
+    $.track = function(baseurl) {
         var proto = window.location.protocol;
         
         var wsproto = 'ws://';
         if(proto[proto.length-2] == 's') {
             wsproto = 'wss://';
         }
-        var wsurl = wsproto + window.location.host + '/_stage';
+        var wsurl = wsproto + window.location.host + (baseurl || '/') + '_stage';
         var socket = new WebSocket(wsurl);
         socket.onmessage = function(e) {
             var msg = JSON.parse(e.data);
