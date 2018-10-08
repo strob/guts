@@ -244,6 +244,27 @@ var PAL = PAL || {};
     function functionquote(x) {
         return quote(x.toString());
     }
+
+
+    // CONVENIENCE
+    var htmltags = ["div",
+		    "h1", "h2", "h3",
+		    "i", "p", "span",
+		    "video", "audio", "img",
+		    "li", "ul", "ol",
+		    "quote",
+		    "textarea", "input", "button"];
+    
+    htmltags.forEach((tagname) => {
+	PAL.Element.prototype[tagname] = function(attrs) {
+	    attrs.parent = this;
+	    return new PAL.Element(tagname, attrs);
+	};
+	PAL.Root.prototype[tagname] = function(attrs) {
+	    attrs.parent = this;
+	    return new PAL.Element(tagname, attrs);
+	};
+    });
     
     
 })(PAL);
