@@ -8,3 +8,8 @@ from .util import (File,
                    Codestage,
                    attach, bschange)
 from .family import BSFamily
+
+# Some aliases
+from twisted.internet import reactor
+runAsync = reactor.callInThread
+runBlockingInMainThread = reactor.callFromThread
