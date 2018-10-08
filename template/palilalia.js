@@ -252,7 +252,7 @@ var PAL = PAL || {};
 		    "i", "p", "span",
 		    "video", "audio", "img",
 		    "li", "ul", "ol",
-		    "quote",
+		    "quote", "pre", "code",
 		    "textarea", "input", "button"];
     
     htmltags.forEach((tagname) => {
