@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+
+import os
+import random
+import subprocess
+
+GITHUB_URL = 'https://github.com/strob/guts.git'
+
+def new_guts(target_directory):
+    os.makedirs(target_directory)
+
+    subprocess.check_call(['git', 'init'], cwd=target_directory)
+    subprocess.check_call(['git', 'submodule', 'init'], cwd=target_directory)
+    subprocess.check_call(['git', 'submodule', 'add', GITHUB_URL, 'ext/guts'], cwd=target_directory)
+    subprocess.check_call(['git', 'submodule', 'update'], cwd=target_directory)
+
+    subprocess.check_call(['ln', '-s', 'ext/guts/guts', 'guts'], cwd=target_directory)
+    subprocess.check_call(['git', 'add', 'guts'], cwd=target_directory)
+
+    wwwdir = os.path.join(target_directory, 'www')
+    os.makedirs(wwwdir)
+
+    for suffix in ['.html', '.css', '.js']:
+        subprocess.check_call(' '.join(['rsync', '-vz', 'ext/guts/template/*%s' % (suffix), 'www/']), cwd=target_directory, shell=True)
+
+    PORT = random.randint(6000, 12000)
+
+    open(os.path.join(target_directory, 'serve.py'), 'w').write('''
+import guts
+from twisted.web.static import File
+
+root = guts.Root(port=%d, interface='127.0.0.1', dirpath='www')
+
+db = guts.Babysteps("local/db")
+root.putChild("_db", db)
+root.putChild("_attach", guts.Attachments())
+root.putChild('_stage', guts.Codestage(wwwdir='www'))
+
+root.putChild('media', File('local/_attachments'))
+
+guts.serve('stage.py', globals(), root=root)
+''' % (PORT))
+
+    subprocess.check_call(['touch', 'stage.py'], cwd=target_directory)
+
+if __name__=='__main__':
+    import sys
+
+    if sys.argv[1] == 'new':
+        new_guts(sys.argv[2])
