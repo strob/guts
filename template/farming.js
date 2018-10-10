@@ -4,15 +4,19 @@ var FARM = FARM || {};
 
 (function($) {
 
-    $.get_json = function(url, cb) {
+    $.get = function(url, cb) {
 	var xhr = new XMLHttpRequest();
 	xhr.open("GET", url, true);
 	xhr.onload = function() {
-	    cb(JSON.parse(this.responseText));
+	    cb(this.responseText);
 	}
 	xhr.send();
     }
 
+    $.get_json = function(url, cb) {
+	$.get(url, (ret) => cb(JSON.parse(ret)));
+    }
+    
     $.get_json_args = function(url, data, cb) {
         var url = url + '?';
         Object.keys(data).sort().forEach(function(key) {
