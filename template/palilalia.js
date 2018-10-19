@@ -253,7 +253,9 @@ var PAL = PAL || {};
 		    "video", "audio", "img",
 		    "li", "ul", "ol",
 		    "quote", "pre", "code",
-		    "textarea", "input", "button"];
+		    "textarea", "input", "button",
+		    "form", "select", "option"		    
+		   ];
     
     htmltags.forEach((tagname) => {
 	PAL.Element.prototype[tagname] = function(attrs) {
