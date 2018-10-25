@@ -249,8 +249,8 @@ var PAL = PAL || {};
     // CONVENIENCE
     var htmltags = ["div",
 		    "h1", "h2", "h3",
-		    "i", "p", "span",
-		    "video", "audio", "img",
+		    "i", "p", "br", "span",
+		    "video", "audio", "img", "canvas",
 		    "li", "ul", "ol",
 		    "quote", "pre", "code",
 		    "textarea", "input", "button",
