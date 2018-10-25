@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from twisted.web.static import File
 from twisted.web.resource import Resource
 from twisted.internet import reactor
+from twisted.web.server import NOT_DONE_YET
 from autobahn.twisted.websocket import WebSocketServerProtocol, \
                                        WebSocketServerFactory
 from autobahn.twisted.resource import WebSocketResource
@@ -45,13 +46,34 @@ class GetArgs(Resource):
             return File(ret).render_GET(req)
         return json.dumps(ret)
     
-class JsonPost(Resource):
-    def __init__(self, fn):
+class PostJson(Resource):
+    def __init__(self, fn, async=False):
         self._fn = fn
+
+        self._async = async
+        
         Resource.__init__(self)
 
     def render_POST(self, req):
-        return json.dumps(self._fn(json.load(req.content)))
+        cmd = json.load(req.content)
+        # Pass through access to the request
+
+        if not self._async:
+            return json.dumps(
+                self._fn(cmd))
+        else:
+            reactor.callInThread(self._call_fn, cmd, req)
+            return NOT_DONE_YET
+
+    def _call_fn(self, cmd, req):
+        ret = self._fn(cmd)
+        reactor.callFromThread(self._finish_req, req, ret)
+
+    def _finish_req(self, req, ret):
+        req.write(json.dumps(ret))
+        req.finish()
+
+JsonPost = PostJson
 
 def Babysteps(dbpath="db"):
     factory = babysteps.DBFactory(dbpath=dbpath)
