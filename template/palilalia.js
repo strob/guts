@@ -13,6 +13,7 @@ var PAL = PAL || {};
     //  - events: JS events attached to this element
     //  - listeners: JS event listeners attached to this element
     //  - styles: CSS styles
+    //  - svg: is_svg (default: parent, false)
     //  - unordered: DOM-order of children irrelevant (default: false)
 
     PAL.Element = function(nodename, attrs) {
@@ -22,6 +23,7 @@ var PAL = PAL || {};
         if(this._attrs.parent) {
             this.setParent(this._attrs.parent);
         }
+	this._is_svg = this._name=='svg' || this._attrs.svg || (this._attrs.parent && this._attrs.parent._is_svg);
         this._children = this._attrs.children || [];
     }
     PAL.Element.prototype.setParent = function(p) {
@@ -37,7 +39,7 @@ var PAL = PAL || {};
 
         node = node || {};
 
-        this.$el = node.$el || document.createElement(this._name);
+        this.$el = node.$el || document.createElementNS(this._is_svg ? 'http://www.w3.org/2000/svg' : 'http://www.w3.org/1999/xhtml', this._name);
         this.$text = node.$text || document.createTextNode("");
         if(!node.$text) {
             this.$el.appendChild(this.$text);
@@ -254,7 +256,11 @@ var PAL = PAL || {};
 		    "li", "ul", "ol",
 		    "quote", "pre", "code",
 		    "textarea", "input", "button",
-		    "form", "select", "option"		    
+		    "form", "select", "option",
+		    // SVG
+		    "svg", "line", "rect", "circle",
+		    "ellipse", "path", "polyline", "polygon",
+		    "text", 
 		   ];
     
     htmltags.forEach((tagname) => {
