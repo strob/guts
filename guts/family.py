@@ -170,4 +170,7 @@ class BSFamily:
 
     def get_infos(self, **kw):
         _all = self.dbs.keys()
-        return sorted([self.get_info(X) for X in _all if X in self.dbs], key=lambda x: x['created_time'], reverse=True)
+        return sorted(
+            [self.get_info(X) for X in _all
+             if ((not kw.get('since')) or float(kw['since']) < self.get_info(X)['modified_time'])],
+            key=lambda x: x['created_time'], reverse=True)
