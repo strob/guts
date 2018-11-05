@@ -49,9 +49,10 @@ class BSFamily:
         # Must contain "id: "
         # ...The rest of the doc is sent to `meta.'
         id = meta_doc["id"]
+        docid = meta_doc.get('docid', 'meta')
 
         # Remove all of the crap that get_info adds
-        for key in ["id", "created_time", "modified_time", "collaborators"]:
+        for key in ["id", "created_time", "modified_time", "collaborators", "docid"]:
             if key in meta_doc:
                 del meta_doc[key]
                 
@@ -68,11 +69,11 @@ class BSFamily:
         if len(new_meta) > 0:
             bschange(db, {
                 "type": "set",
-                "id": "meta",
+                "id": docid,
                 "val": new_meta
             })
 
-        return {"update": new_meta}
+        return {"update": new_meta, "id": id, "docid": docid}
 
     def remove(self, cmd):
         uid = cmd["id"]

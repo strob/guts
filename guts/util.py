@@ -28,8 +28,8 @@ class Get(Resource):
         return self._fn()
 
 class GetArgs(Resource):
-    # TODO: make async (?)
-    def __init__(self, fn, fileout=False):
+    def __init__(self, fn, fileout=False, async=False):
+        self._async = async
         self._fileout = fileout
         self._fn = fn
         Resource.__init__(self)
@@ -41,10 +41,25 @@ class GetArgs(Resource):
                 args[k] = v[0]
             elif len(v) > 1:
                 args[k] = v
+
+        if not self._async:
+            ret = self._fn(**args)
+            if self._fileout:
+                return File(ret).render_GET(req)
+            return json.dumps(ret)
+        else:
+            reactor.callInThread(self._call_fn, args, req)
+            return NOT_DONE_YET
+
+    def _call_fn(self, args, req):
         ret = self._fn(**args)
+        reactor.callFromThread(self._finish_req, req, ret)
+
+    def _finish_req(self, req, ret):
         if self._fileout:
             return File(ret).render_GET(req)
-        return json.dumps(ret)
+        req.write(json.dumps(ret))
+        req.finish()
     
 class PostJson(Resource):
     def __init__(self, fn, async=False):
