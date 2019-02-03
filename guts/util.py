@@ -38,10 +38,14 @@ class GetArgs(Resource):
     def render_GET(self, req):
         args = {}
         for k, v in req.args.items():
+            if type(k) == bytes:
+                k = k.decode("utf-8")
             if len(v) == 1:
                 args[k] = v[0]
             elif len(v) > 1:
                 args[k] = v
+            if type(args[k]) == bytes:
+                args[k] = args[k].decode("utf-8")
 
         if not self._async:
             ret = self._fn(**args)

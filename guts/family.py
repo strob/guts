@@ -1,4 +1,4 @@
-from util import GetArgs, JsonPost, bschange, Babysteps
+from guts.util import GetArgs, JsonPost, bschange, Babysteps
 
 import glob
 import os
@@ -6,11 +6,12 @@ import uuid
 
 from twisted.web.resource import Resource
 
+
 class BSFamily:
     def __init__(self, doctype):
         self.doctype = doctype
 
-        self.dbs = {}           # uid -> db_res
+        self.dbs = {}  # uid -> db_res
 
         self.res = Resource()
 
@@ -18,13 +19,13 @@ class BSFamily:
         self.attach_resources()
 
     def attach_resources(self):
-        self.res.putChild("_info.json", GetArgs(self.get_info))
-        self.res.putChild("_query.json", GetArgs(self.query))
-        self.res.putChild("_infos.json", GetArgs(self.get_infos))
+        self.res.putChild(b"_info.json", GetArgs(self.get_info))
+        self.res.putChild(b"_query.json", GetArgs(self.query))
+        self.res.putChild(b"_infos.json", GetArgs(self.get_infos))
 
-        self.res.putChild("_create", JsonPost(self.create))
-        self.res.putChild("_update", JsonPost(self.update))
-        self.res.putChild("_remove", JsonPost(self.remove))
+        self.res.putChild(b"_create", JsonPost(self.create))
+        self.res.putChild(b"_update", JsonPost(self.update))
+        self.res.putChild(b"_remove", JsonPost(self.remove))
 
     def next_id(self):
         uid = None
@@ -36,12 +37,8 @@ class BSFamily:
         uid = self.next_id()
         db = self.make_db(uid)
         meta_doc["_id"] = "meta"
-        
-        bschange(db, {
-            "type": "set",
-            "id": "meta",
-            "val": meta_doc
-            }, sync=True)
+
+        bschange(db, {"type": "set", "id": "meta", "val": meta_doc}, sync=True)
 
         return self.get_info(uid)
 
@@ -49,13 +46,13 @@ class BSFamily:
         # Must contain "id: "
         # ...The rest of the doc is sent to `meta.'
         id = meta_doc["id"]
-        docid = meta_doc.get('docid', 'meta')
+        docid = meta_doc.get("docid", "meta")
 
         # Remove all of the crap that get_info adds
         for key in ["id", "created_time", "modified_time", "collaborators", "docid"]:
             if key in meta_doc:
                 del meta_doc[key]
-                
+
         db = self.dbs[id]
 
         old_meta = self.get_meta(id)
@@ -67,11 +64,7 @@ class BSFamily:
 
         # And send a change, if there's anything left
         if len(new_meta) > 0:
-            bschange(db, {
-                "type": "set",
-                "id": docid,
-                "val": new_meta
-            })
+            bschange(db, {"type": "set", "id": docid, "val": new_meta})
 
         return {"update": new_meta, "id": id, "docid": docid}
 
@@ -81,7 +74,7 @@ class BSFamily:
         if not uid in self.dbs:
             print("Nothing to delete!", cmd)
             return
-        
+
         trashdir = os.path.join("local/%s/_trash.bkp" % (self.doctype))
         try:
             os.makedirs(trashdir)
@@ -89,7 +82,7 @@ class BSFamily:
             pass
 
         # XXX: How do I remove from Twisted?
-        #self.res.removeChild(uid)
+        # self.res.removeChild(uid)
         del self.dbs[uid]
 
         oldpath = "local/%s/%s" % (self.doctype, uid)
@@ -117,7 +110,7 @@ class BSFamily:
 
     def get_meta(self, uid):
         return self.get_doc(uid, "meta") or {}
-    
+
     def get_doc(self, db_id, doc_id):
         if db_id not in self.dbs:
             return
@@ -132,13 +125,13 @@ class BSFamily:
         else:
             since = float(since)
 
-            log_items = [X for X in db_bs.log if X.get('date', 0) > since]
-            uids = set([X['id'] for X in log_items])
+            log_items = [X for X in db_bs.log if X.get("date", 0) > since]
+            uids = set([X["id"] for X in log_items])
             docs = [db_bs.db.get(X) for X in uids]
 
         # Filter by `type'
         if type is not None:
-            docs = [X for X in docs if X.get('type') == type]
+            docs = [X for X in docs if X.get("type") == type]
 
         # Filter by `unless'
         if unless is not None:
@@ -146,7 +139,7 @@ class BSFamily:
             docs = [X for X in docs if not X.get(unless)]
 
         return docs
-        
+
     def get_info(self, id):
         meta = dict(self.get_meta(id))
         log = self.dbs[id]._factory.steps.log
@@ -154,24 +147,28 @@ class BSFamily:
         if len(log) == 0:
             ctime = mtime = time.time()
         else:
-            ctime = log[0]['date']
-            mtime = log[-1]['date']
+            ctime = log[0]["date"]
+            mtime = log[-1]["date"]
 
-        for key in meta.keys():
+        for key in list(meta.keys()):
             if key[0] == "_":
                 del meta[key]
 
-        meta.update({
-            "id": id,
-            "created_time": ctime,
-            "modified_time": mtime,
-        })
+        meta.update({"id": id, "created_time": ctime, "modified_time": mtime})
 
-        return meta                
+        return meta
 
     def get_infos(self, **kw):
         _all = self.dbs.keys()
         return sorted(
-            [self.get_info(X) for X in _all
-             if ((not kw.get('since')) or float(kw['since']) < self.get_info(X)['modified_time'])],
-            key=lambda x: x['created_time'], reverse=True)
+            [
+                self.get_info(X)
+                for X in _all
+                if (
+                    (not kw.get("since"))
+                    or float(kw["since"]) < self.get_info(X)["modified_time"]
+                )
+            ],
+            key=lambda x: x["created_time"],
+            reverse=True,
+        )
