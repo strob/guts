@@ -258,7 +258,7 @@ var PAL = PAL || {};
 		    "textarea", "input", "button",
 		    "form", "select", "option",
 		    // SVG
-		    "svg", "line", "rect", "circle",
+		    "svg", "line", "rect", "circle", "g",
 		    "ellipse", "path", "polyline", "polygon",
 		    "text", 
 		   ];
