@@ -170,13 +170,13 @@ class StageFactory(WebSocketServerFactory):
     def _onscriptchange(self):
         path = self.scriptpath + "?t=%f" % time.time()
         reactor.callFromThread(
-            self.push_all, json.dumps({"path": path, "type": "script"})
+            self.push_all, bytes(json.dumps({"path": path, "type": "script"}), "utf-8")
         )
 
     def _oncsschange(self):
         path = self.csspath + "?t=%f" % time.time()
         reactor.callFromThread(
-            self.push_all, json.dumps({"path": path, "type": "style"})
+            self.push_all, bytes(json.dumps({"path": path, "type": "style"}, "utf-8"))
         )
 
     def push_all(self, msg):
