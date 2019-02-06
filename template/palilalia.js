@@ -249,7 +249,7 @@ var PAL = PAL || {};
 
 
     // CONVENIENCE
-    var htmltags = ["div",
+    var htmltags = ["div", "a",
 		    "h1", "h2", "h3",
 		    "i", "p", "br", "span",
 		    "video", "audio", "img", "canvas",
