@@ -80,7 +80,7 @@ class PostJson(Resource):
         # Pass through access to the request
 
         if not self._async:
-            return json.dumps(self._fn(cmd))
+            return bytes(json.dumps(self._fn(cmd)), "utf-8")
         else:
             reactor.callInThread(self._call_fn, cmd, req)
             return NOT_DONE_YET
@@ -112,7 +112,7 @@ def Attachments(attachdir="local/_attachments"):
 def attach(filepath, attachdir="local/_attachments", copy=False):
     # XXX: This should be in the attachments.py file probably
     sha1 = hashlib.sha1()
-    with open(filepath) as fh:
+    with open(filepath, "rb") as fh:
         buf = fh.read(2 ** 15)
         while len(buf) > 0:
             sha1.update(buf)
@@ -176,7 +176,7 @@ class StageFactory(WebSocketServerFactory):
     def _oncsschange(self):
         path = self.csspath + "?t=%f" % time.time()
         reactor.callFromThread(
-            self.push_all, bytes(json.dumps({"path": path, "type": "style"}, "utf-8"))
+            self.push_all, bytes(json.dumps({"path": path, "type": "style"}), "utf-8")
         )
 
     def push_all(self, msg):

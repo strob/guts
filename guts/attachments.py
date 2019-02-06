@@ -68,7 +68,7 @@ class AttachProtocol(WebSocketServerProtocol):
 
                 self.cur_upload = cmd
                 self.cur_size = 0
-                self.cur_fh = open(self.cur_filepath, "w")
+                self.cur_fh = open(self.cur_filepath, "wb")
                 self.cur_id = id
                 self.cur_sha1 = hashlib.sha1()
 

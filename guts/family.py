@@ -30,7 +30,7 @@ class BSFamily:
     def next_id(self):
         uid = None
         while uid is None or (uid in self.dbs):
-            uid = uuid.uuid4().get_hex()[:8]
+            uid = uuid.uuid4().hex[:8]
         return uid
 
     def create(self, meta_doc=None):
