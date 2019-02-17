@@ -57,7 +57,12 @@ class GetArgs(Resource):
             return NOT_DONE_YET
 
     def _call_fn(self, args, req):
-        ret = self._fn(**args)
+        try:
+            ret = self._fn(**args)
+        except Exception as e:
+            print(e)
+            reactor.callFromThread(self._finish_req, req, "Unhandled error")
+            raise e
         reactor.callFromThread(self._finish_req, req, ret)
 
     def _finish_req(self, req, ret):

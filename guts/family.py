@@ -8,7 +8,9 @@ from twisted.web.resource import Resource
 
 
 class BSFamily:
-    def __init__(self, doctype):
+    def __init__(self, doctype, localbase='local'):
+        self.localbase = localbase
+
         self.doctype = doctype
 
         self.dbs = {}  # uid -> db_res
@@ -75,7 +77,7 @@ class BSFamily:
             print("Nothing to delete!", cmd)
             return
 
-        trashdir = os.path.join("local/%s/_trash.bkp" % (self.doctype))
+        trashdir = os.path.join(self.localbase, "/%s/_trash.bkp" % (self.doctype))
         try:
             os.makedirs(trashdir)
         except OSError:
@@ -85,7 +87,7 @@ class BSFamily:
         # self.res.removeChild(uid)
         del self.dbs[uid]
 
-        oldpath = "local/%s/%s" % (self.doctype, uid)
+        oldpath = "%s/%s/%s" % (self.localbase, self.doctype, uid)
         newpath = os.path.join(trashdir, uid)
         os.rename(oldpath, newpath)
 
@@ -98,14 +100,14 @@ class BSFamily:
             return self.dbs[uid]
 
         # Create a babysteps endpoint
-        db = Babysteps(dbpath="local/%s/%s" % (self.doctype, uid))
+        db = Babysteps(dbpath="%s/%s/%s" % (self.localbase, self.doctype, uid))
         self.dbs[uid] = db
         self.res.putChild(uid, db)
         return db
 
     def load_from_disk(self):
         # Load all BSDBs
-        for dbpath in glob.glob("local/%s/*[0-9a-f]" % (self.doctype)):
+        for dbpath in glob.glob("%s/%s/*[0-9a-f]" % (self.localbase, self.doctype)):
             self.make_db(os.path.basename(dbpath))
 
     def get_meta(self, uid):
