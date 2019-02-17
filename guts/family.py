@@ -77,7 +77,7 @@ class BSFamily:
             print("Nothing to delete!", cmd)
             return
 
-        trashdir = os.path.join(self.localbase, "/%s/_trash.bkp" % (self.doctype))
+        trashdir = os.path.join(self.localbase, "%s/_trash.bkp" % (self.doctype))
         try:
             os.makedirs(trashdir)
         except OSError:
